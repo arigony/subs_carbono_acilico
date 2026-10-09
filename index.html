@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Substituição nucleofílica acílica · simulador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f9fb; --paper:#ffffff; --ink:#16263a; --muted:#5b6b7b; --line:#d5dde5;
+  --arrow:#d23a2f; --pos:#1f63c6; --neg:#d23a2f; --accent:#0f5c70; --accent-soft:#e3f0f3;
+  --ok:#1e7a4a; --ok-soft:#e5f4ec; --bad:#b3372d; --bad-soft:#fbeae8; --metal:#b9c2cc;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161d; --paper:#18212b; --ink:#e6edf3; --muted:#9aa9b8; --line:#2c3a48;
+    --arrow:#ff6b5e; --pos:#6aa8ff; --neg:#ff6b5e; --accent:#5cc3d6; --accent-soft:#16323a;
+    --ok:#5fd394; --ok-soft:#163326; --bad:#ff8a7e; --bad-soft:#3a1c19; --metal:#46525e;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161d; --paper:#18212b; --ink:#e6edf3; --muted:#9aa9b8; --line:#2c3a48;
+  --arrow:#ff6b5e; --pos:#6aa8ff; --neg:#ff6b5e; --accent:#5cc3d6; --accent-soft:#16323a;
+  --ok:#5fd394; --ok-soft:#163326; --bad:#ff8a7e; --bad-soft:#3a1c19; --metal:#46525e;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,h3{font-family:"Newsreader",Georgia,"Times New Roman",serif;font-weight:600;line-height:1.2;margin:0}
+h1{font-size:clamp(28px,5vw,40px)}
+.lede{color:var(--muted);margin:8px 0 18px;max-width:62ch}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:thin}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;padding:8px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tab small{color:var(--muted);margin-right:6px}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.tab[aria-selected="true"] small{color:inherit;opacity:.8}
+.tab:focus-visible,.btn:focus-visible,.dot:focus-visible,.opt:focus-visible{outline:3px solid var(--pos);outline-offset:2px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mhead{padding:16px 18px 6px}
+.mhead h2{font-size:26px}
+.mhead p{margin:4px 0 0;color:var(--muted)}
+.stage-wrap{overflow-x:auto;padding:4px 6px 0}
+svg#stage{display:block;width:100%;min-width:320px;height:auto}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 18px 12px;border-bottom:1px solid var(--line)}
+.btn{font:inherit;font-size:15px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper);font-weight:600}
+.btn:disabled{opacity:.4;cursor:default}
+.dots{display:flex;gap:6px;margin:0 6px}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);background:transparent;padding:0;cursor:pointer}
+.dot[aria-current="step"]{background:var(--accent)}
+.spacer{flex:1}
+.explain{padding:14px 18px 6px}
+.explain h3{font-size:20px;margin-bottom:4px}
+.explain .num{color:var(--muted);font-family:"IBM Plex Sans",sans-serif;font-size:14px;font-weight:500;display:block;margin-bottom:2px}
+.explain p{margin:0 0 6px;max-width:68ch}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border-top:1px solid var(--line);margin-top:10px}
+.facts div{background:var(--paper);padding:10px 18px}
+.facts dt{font-size:13px;color:var(--muted)}
+.facts dd{margin:0;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:14px;margin:12px 2px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+section.block{margin-top:36px}
+section.block h2{font-size:26px;margin-bottom:10px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--accent-soft)}
+tr:last-child td{border-bottom:0}
+td a{color:var(--accent);font-weight:600;text-decoration:none}
+.quiz{display:grid;gap:14px}
+.q{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.q p.stem{margin:0 0 10px;font-weight:600}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:9px 12px;border-radius:8px;cursor:pointer}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.fb{margin:10px 0 0;font-size:15px}
+.fb.right{color:var(--ok)} .fb.wrong{color:var(--bad)}
+.fb a{color:inherit;font-weight:600}
+footer{margin-top:36px;color:var(--muted);font-size:14px}
+/* SVG */
+.lab{font-family:"IBM Plex Sans",Arial,sans-serif;font-size:21px;fill:var(--ink)}
+.bond{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;fill:none}
+.wedge{fill:var(--ink)}
+.lp{fill:var(--ink)}
+.chg-p{stroke:var(--pos);fill:var(--paper)} .chg-pt{fill:var(--pos)}
+.chg-n{stroke:var(--neg);fill:var(--paper)} .chg-nt{fill:var(--neg)}
+.t-note{font-size:16px;fill:var(--muted);font-family:"IBM Plex Sans",sans-serif}
+.t-name{font-size:19px;fill:var(--ink);font-weight:600;font-family:"IBM Plex Sans",sans-serif}
+.t-dp{font-size:17px;fill:var(--pos);font-style:italic}
+.t-dn{font-size:17px;fill:var(--neg);font-style:italic}
+.t-big{font-size:30px;fill:var(--muted)}
+.t-chem{font-size:21px;fill:var(--ink);font-family:"IBM Plex Sans",sans-serif}
+.rxn{stroke:var(--ink);stroke-width:2;fill:none}
+.rxnh{fill:var(--ink)}
+.arr{stroke:var(--arrow);stroke-width:2.4;fill:none;stroke-linecap:round}
+.arrh{fill:var(--arrow)}
+.mv{stroke:var(--muted);stroke-width:2;fill:none;stroke-dasharray:6 5}
+.mvh{fill:var(--muted)}
+.metal{fill:var(--metal)}
+.metal-t{font-size:15px;fill:var(--muted)}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+.energy{padding:6px 18px 4px;border-top:1px solid var(--line)}
+.energy h3{font-family:"IBM Plex Sans",sans-serif;font-size:14px;font-weight:600;color:var(--muted);margin:6px 0 0}
+svg#energy{display:block;width:100%;max-width:600px;height:auto}
+.ax{stroke:var(--muted);stroke-width:1.5} .axh{fill:var(--muted)}
+.curve{stroke:var(--accent);stroke-width:3;fill:none}
+.edot{fill:var(--arrow);stroke:var(--paper);stroke-width:2.5}
+.ea{stroke:var(--pos);stroke-width:1.6;fill:none} .eah{fill:var(--pos)}
+.t-ea{font-size:16px;fill:var(--pos);font-style:italic}
+.t-elab{font-size:14px;fill:var(--muted)}
+.flow{padding:16px 18px}
+.flow p.lbl{margin:0 0 8px;font-weight:600}
+.fbtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.fbtns .opt{flex:1 1 180px}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.opt small{display:block;font-size:13px;opacity:.8}
+#flowOut{background:var(--accent-soft);border-radius:10px;padding:12px 14px}
+#flowOut p{margin:0 0 6px} .fres{font-family:"Newsreader",Georgia,serif;font-size:24px;font-weight:600}
+#flowOut a{color:var(--accent);font-weight:600}
+
+.ladder{display:grid;gap:6px;margin-bottom:18px}
+.rung{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;padding:9px 12px;border-radius:8px;overflow:hidden;z-index:0}
+.rb{position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--accent-soft);z-index:-1;border-radius:8px}
+.rf{color:var(--muted);font-size:14px}.rl{color:var(--muted);font-size:14px}
+.lad-ax{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin:-10px 2px 16px}
+#flowOut.ok{background:var(--ok-soft)} #flowOut.no{background:var(--bad-soft)}
+.fbtns.c5 .opt{flex:1 1 140px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Substituição nucleofílica acílica</h1>
+  <p class="lede">Derivados de ácidos carboxílicos reagem por adição e eliminação, passando por um intermediário tetraédrico. Avance etapa por etapa: as setas vermelhas mostram os elétrons, os átomos se movem e o ponto no diagrama de energia acompanha a reação.</p>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Mecanismos"></nav>
+
+  <div class="card">
+    <div class="mhead"><h2 id="mTitle"></h2><p id="mSub"></p></div>
+    <div class="stage-wrap">
+      <svg id="stage" viewBox="0 0 600 270" role="img" aria-labelledby="stepTitle"><g id="scene"></g><g id="arrows"></g></svg>
+    </div>
+    <div class="controls">
+      <button class="btn" id="prev">◀ Anterior</button>
+      <div class="dots" id="dots"></div>
+      <button class="btn primary" id="next">Próxima ▶</button>
+      <span class="spacer"></span>
+      <button class="btn" id="replay">Repetir setas</button>
+      <button class="btn" id="auto">Reproduzir tudo</button>
+    </div>
+    <div class="explain" aria-live="polite">
+      <span class="num" id="stepNum"></span>
+      <h3 id="stepTitle"></h3>
+      <p id="stepText"></p>
+    </div>
+    <div class="energy"><h3 id="enTitle"></h3><svg id="energy" viewBox="0 0 600 192" aria-hidden="true"></svg></div>
+    <dl class="facts" id="facts"></dl>
+  </div>
+  <div class="legend">
+    <span><svg width="34" height="14"><path d="M2 12 Q17 0 30 10" class="arr"/></svg>movimento de um par de elétrons</span>
+    <span><svg width="34" height="14"><path d="M2 7 H30" class="mv"/></svg>transferência de próton</span>
+    <span><svg width="14" height="14"><circle cx="7" cy="7" r="6" class="edot"/></svg>posição no diagrama de energia</span>
+  </div>
+
+  <section class="block">
+    <h2>Escada de reatividade</h2>
+    <div class="card flow">
+      <p style="margin:0 0 12px">Quanto melhor o grupo de saída (base mais fraca, pKa do ácido conjugado mais baixo), mais reativo o derivado. Uma substituição acílica só converte um derivado em outro <b>descendo</b> a escada.</p>
+      <div class="ladder" id="ladder"></div>
+      <div class="lad-ax"><span>▲ mais reativo</span><span>menos reativo ▼</span></div>
+      <p class="lbl">Partindo de:</p>
+      <div class="fbtns c5" id="cFrom"></div>
+      <p class="lbl">Quero obter:</p>
+      <div class="fbtns c5" id="cTo"></div>
+      <div id="flowOut" hidden aria-live="polite"></div>
+      <p style="margin:12px 0 0"><button class="btn" id="flowReset">Recomeçar</button></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Quadro comparativo</h2>
+    <div class="tbl"><table id="summary"></table></div>
+  </section>
+
+  <section class="block">
+    <h2>Desafios</h2>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <footer>Química Orgânica · PUCRS. Mecanismos simplificados para revisão.</footer>
+</div>
+<script>
+const A=(x,y,l,o={})=>Object.assign({x,y,l},o);
+const MECH=[
+{id:'cloreto',tab:'Cloreto + NH₃',title:'Aminólise de cloreto de acila',sub:'cloreto de acetila + 2 NH₃ → acetamida + NH₄Cl',prof:'tet',
+ facts:{Nucleófilo:'NH₃ (ou amina)','Grupo de saída':'Cl⁻',Catálise:'não; o 2º equivalente de NH₃ captura o HCl',Intermediário:'tetraédrico',Reversível:'não'},
+ steps:[
+ {t:'Adição: o nucleófilo ataca a carbonila',ep:45,d:'O par isolado do nitrogênio ataca o carbono carbonílico, que é δ+ e plano. Os elétrons da ligação π vão para o oxigênio. O carbono passa de sp² para sp³.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),cl:A(335,140,'Cl',{lp:[0,300,60]}),n:A(350,225,'NH2',{lp:[180]}),nh:A(410,250,'H'),nb:A(510,225,'NH3',{lp:[180]})},
+   bonds:[['c','o',2],['c','me',1],['c','cl',1],['n','nh',1]],
+   texts:[{x:225,y:112,s:'δ+',c:'dp'},{x:500,y:40,s:'2 equivalentes de NH₃',c:'note'}],
+   arrows:[{f:[322,222],t:[262,154],b:-15},{f:[256,104],t:[264,74],b:14}]}},
+ {t:'Intermediário tetraédrico',ep:300,d:'O carbono agora tem quatro ligações e o oxigênio carrega carga negativa. Esse intermediário é instável: o par do O⁻ volta a formar a ligação C=O e expulsa o melhor grupo de saída, o Cl⁻.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{c:'−',cp:[-16,-16],lp:[0,180,300]}),me:A(165,140,'H3C'),cl:A(335,140,'Cl',{lp:[0,300,60]}),n:A(250,220,'NH2',{c:'+'}),nh:A(310,248,'H'),nb:A(510,225,'NH3',{lp:[180]})},
+   bonds:[['c','o',1],['c','me',1],['c','cl',1],['c','n',1],['n','nh',1]],
+   texts:[{x:470,y:100,s:'intermediário tetraédrico',c:'note'}],
+   arrows:[{f:[232,62],t:[244,102],b:14},{f:[292,147],t:[332,158],b:14}]}},
+ {t:'Eliminação e desprotonação',ep:470,d:'A carbonila se refez e o Cl⁻ saiu. O nitrogênio ficou com carga +. A segunda molécula de NH₃ funciona como base e remove o H⁺: é por isso que se usam dois equivalentes.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),cl:A(420,110,'Cl',{c:'−',lp:[0,90,180,270]}),n:A(250,220,'NH2',{c:'+'}),nh:A(310,248,'H'),nb:A(510,225,'NH3',{lp:[180]})},
+   bonds:[['c','o',2],['c','me',1],['c','n',1],['n','nh',1]],
+   arrows:[{f:[484,222],t:[322,246],b:16},{f:[286,240],t:[272,236],b:10}]}},
+ {t:'Amida',ep:550,d:'Forma-se a acetamida e o HCl liberado fica como cloreto de amônio. A reação é rápida e irreversível porque o Cl⁻ é um ótimo grupo de saída e a amida é muito menos reativa que o cloreto de acila.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),cl:A(420,110,'Cl',{c:'−',lp:[0,90,180,270]}),n:A(250,220,'NH2'),nh:A(510,225,'H',{ghost:1}),nb:A(510,225,'NH4',{c:'+'})},
+   bonds:[['c','o',2],['c','me',1],['c','n',1]],
+   texts:[{x:110,y:215,s:'acetamida',c:'name'}]}}
+ ]},
+
+{id:'anidrido',tab:'Anidrido + ROH',title:'Alcoólise de anidrido',sub:'anidrido acético + etanol → acetato de etila + ácido acético',prof:'tet',
+ facts:{Nucleófilo:'álcool (ROH)','Grupo de saída':'carboxilato (RCOO⁻)',Catálise:'opcional (piridina ou H⁺)',Intermediário:'tetraédrico',Reversível:'não'},
+ steps:[
+ {t:'O álcool ataca uma das carbonilas',ep:45,d:'O oxigênio do etanol ataca um dos carbonos carbonílicos do anidrido. É a mesma reação usada para acetilar o ácido salicílico na síntese do AAS (aspirina).',
+  s:{atoms:{c:A(230,140,'C'),o:A(230,62,'O',{lp:[200,340]}),me:A(145,140,'H3C'),ob:A(310,140,'O',{lp:[90,270]}),c2:A(390,140,'C'),o2:A(390,62,'O',{lp:[200,340]}),me2:A(475,140,'CH3'),e:A(230,232,'O',{lp:[270,90]}),eh:A(280,252,'H'),eet:A(180,252,'Et')},
+   bonds:[['c','o',2],['c','me',1],['c','ob',1],['ob','c2',1],['c2','o2',2],['c2','me2',1],['e','eh',1],['e','eet',1]],
+   arrows:[{f:[230,214],t:[232,156],b:12},{f:[236,104],t:[244,74],b:14}]}},
+ {t:'Intermediário tetraédrico',ep:300,d:'O oxigênio do álcool ficou com carga + e o oxigênio carbonílico com carga −. O O⁻ refaz a ligação C=O e expulsa o acetato, que é um grupo de saída razoável (base conjugada de um ácido com pKa 4,8).',
+  s:{atoms:{c:A(230,140,'C'),o:A(230,62,'O',{c:'−',cp:[-16,-16],lp:[0,180,300]}),me:A(145,140,'H3C'),ob:A(310,140,'O',{lp:[90,270]}),c2:A(390,140,'C'),o2:A(390,62,'O',{lp:[200,340]}),me2:A(475,140,'CH3'),e:A(230,215,'O',{c:'+',cp:[16,-14]}),eh:A(280,240,'H'),eet:A(180,240,'Et')},
+   bonds:[['c','o',1],['c','me',1],['c','ob',1],['ob','c2',1],['c2','o2',2],['c2','me2',1],['c','e',1],['e','eh',1],['e','eet',1]],
+   texts:[{x:470,y:230,s:'intermediário tetraédrico',c:'note'}],
+   arrows:[{f:[212,62],t:[224,102],b:14},{f:[270,147],t:[306,158],b:14}]}},
+ {t:'Saída do acetato e transferência de próton',ep:470,d:'O acetato saiu. Ele mesmo remove o H⁺ do oxigênio positivo, formando ácido acético.',
+  s:{atoms:{c:A(230,140,'C'),o:A(230,62,'O',{lp:[200,340]}),me:A(145,140,'H3C'),ob:A(360,180,'O',{c:'−',cp:[14,16],lp:[90,180,270]}),c2:A(430,140,'C'),o2:A(430,62,'O',{lp:[200,340]}),me2:A(515,140,'CH3'),e:A(230,215,'O',{c:'+',cp:[16,-14]}),eh:A(280,240,'H'),eet:A(180,240,'Et')},
+   bonds:[['c','o',2],['c','me',1],['ob','c2',1],['c2','o2',2],['c2','me2',1],['c','e',1],['e','eh',1],['e','eet',1]],
+   arrows:[{f:[342,180],t:[292,236],b:-14},{f:[258,232],t:[244,226],b:8}]}},
+ {t:'Éster + ácido carboxílico',ep:550,d:'Produtos: acetato de etila e ácido acético. O anidrido é menos reativo que o cloreto de acila, mas ainda reage bem com álcoois e aminas, e é mais fácil de manusear.',
+  s:{atoms:{c:A(230,140,'C'),o:A(230,62,'O',{lp:[200,340]}),me:A(145,140,'H3C'),ob:A(360,180,'O',{lp:[180]}),c2:A(430,140,'C'),o2:A(430,62,'O',{lp:[200,340]}),me2:A(515,140,'CH3'),e:A(230,215,'O',{lp:[0]}),eh:A(360,235,'H'),eet:A(180,240,'Et')},
+   bonds:[['c','o',2],['c','me',1],['ob','c2',1],['c2','o2',2],['c2','me2',1],['c','e',1],['ob','eh',1],['e','eet',1]],
+   texts:[{x:330,y:22,s:'acetato de etila + ácido acético',c:'name'}]}}
+ ]},
+
+{id:'fischer',tab:'Fischer',title:'Esterificação de Fischer',sub:'ácido acético + metanol (H₂SO₄ cat.) ⇌ acetato de metila + água',prof:'tet',
+ facts:{Nucleófilo:'álcool (fraco)','Grupo de saída':'H₂O (após protonação)',Catálise:'ácida (H₂SO₄)',Intermediário:'tetraédrico protonado',Reversível:'sim (equilíbrio)'},
+ steps:[
+ {t:'Protonação da carbonila',ep:45,d:'O metanol é um nucleófilo fraco e não ataca o ácido diretamente. Primeiro o catalisador ácido protona o oxigênio da carbonila.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),oh:A(335,140,'O',{lp:[90,270]}),ohh:A(390,140,'H'),hp:A(330,38,'H',{c:'+'}),m:A(250,232,'O',{lp:[270,90]}),mh:A(300,252,'H'),mme:A(200,252,'H3C')},
+   bonds:[['c','o',2],['c','me',1],['c','oh',1],['oh','ohh',1],['m','mh',1],['m','mme',1]],
+   texts:[{x:470,y:40,s:'H⁺ do H₂SO₄ (cat.)',c:'note'}],
+   arrows:[{f:[262,50],t:[318,40],b:-10}]}},
+ {t:'Carbono ativado: o álcool ataca',ep:120,d:'Com o oxigênio protonado, o carbono fica muito mais eletrófilo. Agora o metanol consegue atacar, e os elétrons π vão para o oxigênio.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{c:'+',cp:[-16,-14],lp:[200]}),hp:A(305,38,'H'),me:A(165,140,'H3C'),oh:A(335,140,'O',{lp:[90,270]}),ohh:A(390,140,'H'),m:A(250,232,'O',{lp:[270,90]}),mh:A(300,252,'H'),mme:A(200,252,'H3C')},
+   bonds:[['c','o',2],['o','hp',1],['c','me',1],['c','oh',1],['oh','ohh',1],['m','mh',1],['m','mme',1]],
+   texts:[{x:470,y:90,s:'C mais eletrófilo',c:'note'}],
+   arrows:[{f:[256,104],t:[262,76],b:14},{f:[250,214],t:[252,156],b:12}]}},
+ {t:'Intermediário tetraédrico e troca de próton',ep:300,d:'Forma-se o intermediário tetraédrico. Um H⁺ passa do oxigênio do metanol para um dos grupos OH, transformando-o em H₂O, um bom grupo de saída.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[175,245]}),hp:A(305,38,'H'),me:A(165,140,'H3C'),oh:A(335,140,'O',{lp:[90,270]}),ohh:A(390,140,'H'),m:A(250,215,'O',{c:'+',cp:[-16,-14]}),mh:A(300,240,'H'),mme:A(200,240,'H3C')},
+   bonds:[['c','o',1],['o','hp',1],['c','me',1],['c','oh',1],['oh','ohh',1],['c','m',1],['m','mh',1],['m','mme',1]],
+   texts:[{x:480,y:230,s:'transferência de próton',c:'note'}],
+   arrows:[{f:[306,228],t:[332,160],k:'mv'}]}},
+ {t:'Saída da água',ep:330,d:'Um par isolado do OH refaz a ligação C=O e a água sai.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[175,245]}),hp:A(305,38,'H'),me:A(165,140,'H3C'),oh:A(335,140,'O',{c:'+',cp:[0,-20]}),ohh:A(390,140,'H'),mh:A(360,190,'H'),m:A(250,215,'O',{lp:[0]}),mme:A(200,240,'H3C')},
+   bonds:[['c','o',1],['o','hp',1],['c','me',1],['c','oh',1],['oh','ohh',1],['oh','mh',1],['c','m',1],['m','mme',1]],
+   arrows:[{f:[234,58],t:[244,102],b:14},{f:[292,147],t:[326,154],b:14}]}},
+ {t:'Desprotonação',ep:470,d:'Resta o éster protonado. Uma base fraca do meio, como a água, remove o H⁺ e regenera o catalisador.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{c:'+',cp:[-16,-14],lp:[200]}),hp:A(305,38,'H'),me:A(165,140,'H3C'),m:A(250,215,'O',{lp:[0]}),mme:A(200,240,'H3C'),oh:A(450,110,'O',{lp:[180,270]}),ohh:A(495,90,'H'),mh:A(495,135,'H')},
+   bonds:[['c','o',2],['o','hp',1],['c','me',1],['c','m',1],['m','mme',1],['oh','ohh',1],['oh','mh',1]],
+   arrows:[{f:[432,108],t:[318,40],b:20},{f:[284,46],t:[264,52],b:-8}]}},
+ {t:'Éster: um equilíbrio',ep:550,d:'Forma-se o acetato de metila e o H⁺ volta ao meio. Todas as etapas são reversíveis: para deslocar o equilíbrio, usa-se excesso de álcool ou remove-se a água formada.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),m:A(250,215,'O',{lp:[0]}),mme:A(200,240,'H3C'),oh:A(450,110,'O',{c:'+'}),hp:A(405,110,'H'),ohh:A(495,90,'H'),mh:A(495,135,'H')},
+   bonds:[['c','o',2],['c','me',1],['c','m',1],['m','mme',1],['oh','ohh',1],['oh','mh',1],['oh','hp',1]],
+   texts:[{x:450,y:205,s:'acetato de metila',c:'name'},{x:450,y:231,s:'⇌ use excesso de álcool',c:'note'}]}}
+ ]},
+
+{id:'saponificacao',tab:'Saponificação',title:'Hidrólise básica de éster (saponificação)',sub:'acetato de etila + OH⁻ → acetato + etanol',prof:'tet',
+ facts:{Nucleófilo:'OH⁻','Grupo de saída':'EtO⁻',Catálise:'não; o OH⁻ é consumido',Intermediário:'tetraédrico',Reversível:'não (forma carboxilato)'},
+ steps:[
+ {t:'O OH⁻ ataca a carbonila',ep:45,d:'O hidróxido, nucleófilo forte, ataca diretamente o carbono carbonílico do éster. Não é preciso ativar a carbonila com ácido.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),or:A(335,140,'O',{lp:[90,270]}),et:A(405,140,'Et'),hx:A(250,232,'O',{c:'−',cp:[18,-10],lp:[270,180,110]}),hxh:A(300,252,'H')},
+   bonds:[['c','o',2],['c','me',1],['c','or',1],['or','et',1],['hx','hxh',1]],
+   arrows:[{f:[250,214],t:[252,156],b:12},{f:[256,104],t:[264,74],b:14}]}},
+ {t:'Intermediário tetraédrico',ep:300,d:'O O⁻ refaz a ligação C=O e expulsa o etóxido (EtO⁻). O etóxido não é um grupo de saída tão bom quanto o Cl⁻, por isso ésteres reagem mais devagar que cloretos de acila.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{c:'−',cp:[-16,-16],lp:[0,180,300]}),me:A(165,140,'H3C'),or:A(335,140,'O',{lp:[90,270]}),et:A(405,140,'Et'),hx:A(250,215,'O',{lp:[180,100]}),hxh:A(300,240,'H')},
+   bonds:[['c','o',1],['c','me',1],['c','or',1],['or','et',1],['c','hx',1],['hx','hxh',1]],
+   texts:[{x:480,y:230,s:'intermediário tetraédrico',c:'note'}],
+   arrows:[{f:[232,62],t:[244,102],b:14},{f:[292,147],t:[330,158],b:14}]}},
+ {t:'Ácido carboxílico + etóxido',ep:470,d:'Formam-se ácido acético e etóxido, uma base forte. Na mesma hora o etóxido remove o H ácido do ácido carboxílico.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),hx:A(250,215,'O',{lp:[180,100]}),hxh:A(300,240,'H'),or:A(410,190,'O',{c:'−',lp:[180,90,240]}),et:A(480,190,'Et')},
+   bonds:[['c','o',2],['c','me',1],['c','hx',1],['hx','hxh',1],['or','et',1]],
+   arrows:[{f:[392,190],t:[312,238],b:-12},{f:[276,230],t:[262,224],b:8}]}},
+ {t:'Carboxilato: reação irreversível',ep:550,d:'Fica o íon acetato, estabilizado por ressonância, que não é atacado pelo etanol. Essa etapa ácido-base puxa toda a reação: por isso a saponificação é irreversível. Para obter o ácido livre, acidifica-se no final.',
+  s:{atoms:{c:A(250,140,'C'),o:A(250,62,'O',{lp:[200,340]}),me:A(165,140,'H3C'),hx:A(250,215,'O',{c:'−',cp:[18,-10],lp:[180,100,230]}),hxh:A(410,245,'H'),or:A(410,190,'O',{lp:[180,270]}),et:A(480,190,'Et')},
+   bonds:[['c','o',2],['c','me',1],['c','hx',1],['or','hxh',1],['or','et',1]],
+   texts:[{x:470,y:60,s:'acetato + etanol',c:'name'},{x:470,y:86,s:'ácido-base: irreversível',c:'note'}]}}
+ ]}
+];
+
+const QUIZ=[
+ {q:'Qual a ordem de reatividade frente a nucleófilos?',o:['amida > éster > anidrido > cloreto de acila','cloreto de acila > anidrido > éster > amida','éster > cloreto de acila > amida > anidrido'],a:1,e:'Quanto melhor o grupo de saída (base mais fraca), mais reativo o derivado: Cl⁻ > RCOO⁻ > RO⁻ > NH₂⁻.',m:0},
+ {q:'Por que se usam 2 equivalentes de amina com um cloreto de acila?',o:['um reage e o outro neutraliza o HCl formado','a reação é de segunda ordem na amina','a amina é catalisador'],a:0,e:'Sem o segundo equivalente, o HCl protonaria a amina, que deixaria de ser nucleófila.',m:0},
+ {q:'Ácido salicílico + anidrido acético →',o:['ácido acetilsalicílico (AAS)','salicilato de metila','fenol'],a:0,e:'O OH fenólico ataca o anidrido e é acetilado: síntese da aspirina.',m:1},
+ {q:'Na esterificação de Fischer, o papel do H⁺ é:',o:['tornar o carbono carbonílico mais eletrófilo','neutralizar o álcool','formar o carboxilato'],a:0,e:'Protonar a carbonila permite que um nucleófilo fraco, o álcool, ataque. O H⁺ também transforma OH em H₂O, bom grupo de saída.',m:2},
+ {q:'Ácido acético + CH₃¹⁸OH com H⁺: onde termina o ¹⁸O?',o:['no éster','na água','metade em cada'],a:0,e:'O oxigênio do álcool é o nucleófilo e permanece no éster; quem sai como água é o OH do ácido.',m:2},
+ {q:'Por que a saponificação é irreversível?',o:['o carboxilato formado não é atacado pelo álcool','o OH⁻ é catalisador','o éster é mais estável que o ácido'],a:0,e:'A etapa final ácido-base forma o carboxilato, estabilizado por ressonância e não eletrófilo.',m:3},
+ {q:'Qual conversão NÃO ocorre por substituição nucleofílica acílica direta?',o:['éster → amida','cloreto de acila → éster','amida → cloreto de acila'],a:2,e:'Não se sobe a escada de reatividade: o Cl⁻ é péssimo nucleófilo e o NH₂⁻ péssimo grupo de saída.',m:0}
+];
+
+const PROF={
+ tet:{d:'M40 150 C 120 150, 150 40, 190 40 S 260 105, 300 105 S 370 70, 400 70 S 480 170, 560 170',labels:[[62,170,'reagentes'],[190,24,'ET1 (adição)'],[300,128,'tetraédrico'],[410,54,'ET2 (eliminação)'],[545,153,'produtos']],ea:[190,150,40]}
+};
+
+const DER=[
+ {k:'cl',n:'Cloreto de acila',f:'RCOCl',lg:'Cl⁻',pka:'−7'},
+ {k:'an',n:'Anidrido',f:'(RCO)₂O',lg:'RCOO⁻',pka:'4,8'},
+ {k:'es',n:'Éster',f:'RCOOR′',lg:'R′O⁻',pka:'16'},
+ {k:'ac',n:'Ácido carboxílico',f:'RCOOH',lg:'HO⁻',pka:'15,7'},
+ {k:'am',n:'Amida',f:'RCONH₂',lg:'NH₂⁻',pka:'38'}
+];
+const CONV={
+ 'cl-an':[1,'Sim: com um carboxilato (RCOO⁻).',null],
+ 'cl-es':[1,'Sim: com álcool, geralmente com piridina para captar o HCl.',null],
+ 'cl-ac':[1,'Sim: com água (hidrólise rápida).',null],
+ 'cl-am':[1,'Sim: com 2 equivalentes de amina ou NH₃.',0],
+ 'an-cl':[0,'Não: seria subir a escada. O Cl⁻ é nucleófilo fraco demais para expulsar o carboxilato.',null],
+ 'an-es':[1,'Sim: com álcool.',1],
+ 'an-ac':[1,'Sim: com água.',null],
+ 'an-am':[1,'Sim: com 2 equivalentes de amina.',null],
+ 'es-cl':[0,'Não diretamente. Hidrolise o éster ao ácido e use SOCl₂.',null],
+ 'es-an':[0,'Não diretamente: o carboxilato não expulsa o alcóxido.',null],
+ 'es-ac':[1,'Sim: hidrólise ácida (equilíbrio) ou saponificação seguida de acidificação.',3],
+ 'es-am':[1,'Sim: com amina ou NH₃ (aminólise), mais lenta que a partir de cloretos.',null],
+ 'ac-cl':[0,'Não por substituição direta: o HO⁻ é mau grupo de saída. Usa-se SOCl₂, que transforma o OH em um ótimo grupo de saída.',null],
+ 'ac-an':[0,'Não por substituição simples: exige desidratação forte (ou passar pelo cloreto).',null],
+ 'ac-es':[1,'Sim: esterificação de Fischer, com álcool e catalisador ácido (equilíbrio).',2],
+ 'ac-am':[0,'Não diretamente: a amina primeiro desprotona o ácido e forma um sal. Passe pelo cloreto de acila ou use agente de acoplamento (DCC).',null],
+ 'am-cl':[0,'Não: a amida está na base da escada.',null],
+ 'am-an':[0,'Não: a amida está na base da escada.',null],
+ 'am-es':[0,'Não diretamente: o NH₂⁻ é péssimo grupo de saída.',null],
+ 'am-ac':[1,'Só com condições vigorosas: hidrólise em ácido ou base concentrada, com aquecimento. O produto (carboxilato ou íon amônio) puxa a reação.',null]
+};
+
+/* ====================== MOTOR DE DESENHO ====================== */
+const scene=document.getElementById('scene'), arrowsG=document.getElementById('arrows');
+const NS='http://www.w3.org/2000/svg';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cw=c=>/\d/.test(c)?9:(/[a-z]/.test(c)?11:14);
+const lwid=l=>[...l].reduce((s,c)=>s+cw(c),0);
+const box=at=>(!at||!at.l)?[0,0]:[lwid(at.l)/2+3,12];
+
+function labelSVG(at,x,y,op){
+  if(!at.l||op<=0.01) return '';
+  const segs=at.l.match(/\d+|\D+/g); let s='',down=false;
+  for(const g of segs){
+    if(/\d/.test(g)){s+=`<tspan dy="6" font-size="15">${g}</tspan>`;down=true}
+    else{s+=`<tspan${down?' dy="-6"':''}>${g}</tspan>`;down=false}
+  }
+  return `<text x="${x}" y="${y}" class="lab" text-anchor="middle" dominant-baseline="central" opacity="${op}">${s}</text>`;
+}
+function edgeDist(hw,hh,ang){const c=Math.abs(Math.cos(ang)),s=Math.abs(Math.sin(ang));return Math.min(c>1e-6?hw/c:1e9,s>1e-6?hh/s:1e9)}
+function decoSVG(at,x,y,op){
+  if(op<=0.01) return ''; let s=''; const [hw,hh]=box(at);
+  if(at.c){const [cx,cy]=at.cp?[x+at.cp[0],y+at.cp[1]]:[x+hw+4,y-17]; const p=at.c==='+';
+    s+=`<g opacity="${op}"><circle cx="${cx}" cy="${cy}" r="7.5" class="${p?'chg-p':'chg-n'}" stroke-width="1.6"/><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" class="${p?'chg-pt':'chg-nt'}">${p?'+':'−'}</text></g>`}
+  (at.lp||[]).forEach(d=>{const a=d*Math.PI/180,r=edgeDist(hw,hh,a)+4,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r,nx=-Math.sin(a)*3.4,ny=Math.cos(a)*3.4;
+    s+=`<circle cx="${px+nx}" cy="${py+ny}" r="2.1" class="lp" opacity="${op}"/><circle cx="${px-nx}" cy="${py-ny}" r="2.1" class="lp" opacity="${op}"/>`});
+  if(at.rad!==undefined){const a=at.rad*Math.PI/180,r=edgeDist(hw,hh,a)+5;s+=`<circle cx="${x+Math.cos(a)*r}" cy="${y+Math.sin(a)*r}" r="3.2" class="lp" opacity="${op}"/>`}
+  return s;
+}
+function trim(p,q,b){const [hw,hh]=b; if(!hw) return p; const dx=q[0]-p[0],dy=q[1]-p[1];
+  let t=Math.min(Math.abs(dx)>1e-6?hw/Math.abs(dx):1e9,Math.abs(dy)>1e-6?hh/Math.abs(dy):1e9); t=Math.min(t,.45); return [p[0]+dx*t,p[1]+dy*t]}
+function ln(a,b,cls='bond',extra=''){return `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" class="${cls}" ${extra}/>`}
+function bondSVG(p1,p2,bd,op){
+  if(op<=0.01) return ''; const [,, order=1, style='', side=0]=bd;
+  const dx=p2[0]-p1[0],dy=p2[1]-p1[1],L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L; let s='';
+  const off=(p,k)=>[p[0]+nx*k,p[1]+ny*k];
+  if(style==='wedge'){s=`<polygon points="${p1[0]},${p1[1]} ${p2[0]+nx*5},${p2[1]+ny*5} ${p2[0]-nx*5},${p2[1]-ny*5}" class="wedge"/>`}
+  else if(style==='hash'){for(let i=1;i<=7;i++){const f=i/7,px=p1[0]+dx*f,py=p1[1]+dy*f,w=.6+4.4*f;s+=ln([px-nx*w,py-ny*w],[px+nx*w,py+ny*w],'bond','stroke-width="1.8"')}}
+  else if(style==='dash'){s=ln(p1,p2,'bond','stroke-dasharray="5 5"')}
+  else if(order===2&&style==='dp'){s=ln(off(p1,-2.8),off(p2,-2.8))+ln(off(p1,2.8),off(p2,2.8),'bond','stroke-dasharray="4 4"')}
+  else if(order===2&&side){const a=[p1[0]+dx*.15,p1[1]+dy*.15],b=[p1[0]+dx*.85,p1[1]+dy*.85];s=ln(p1,p2)+ln(off(a,side*6),off(b,side*6))}
+  else if(order===2){s=ln(off(p1,-3.2),off(p2,-3.2))+ln(off(p1,3.2),off(p2,3.2))}
+  else s=ln(p1,p2);
+  return `<g opacity="${op}">${s}</g>`;
+}
+const vis=a=>a&&!a.ghost?1:0;
+const akey=a=>a?JSON.stringify([a.l,a.c,a.cp,a.lp,a.rad,!!a.ghost]):'';
+const bkey=b=>{const [x,y,o=1,s='',d=0]=b;return (x<y?x+'|'+y:y+'|'+x)+'|'+o+'|'+s+'|'+d};
+const tkey=t=>JSON.stringify(t);
+
+function surfSVG(op){ if(op<=0.01) return ''; let s=`<g opacity="${op}">`;
+  for(let x=45;x<=555;x+=30) s+=`<circle cx="${x}" cy="248" r="13" class="metal"/>`;
+  return s+`<text x="590" y="214" class="metal-t" text-anchor="end">superfície de Pd</text></g>`}
+function rxnSVG(r,op){ if(op<=0.01) return '';
+  return `<g opacity="${op}">${ln([r.x1,r.y],[r.x2-10,r.y],'rxn')}<polygon points="${r.x2},${r.y} ${r.x2-12},${r.y-6} ${r.x2-12},${r.y+6}" class="rxnh"/>${r.top?`<text x="${(r.x1+r.x2)/2}" y="${r.y-12}" text-anchor="middle" class="t-note">${r.top}</text>`:''}</g>`}
+function textSVG(t,op){ if(op<=0.01) return ''; return `<text x="${t.x}" y="${t.y}" text-anchor="middle" dominant-baseline="central" class="t-${t.c||'note'}" opacity="${op}">${t.s}</text>`}
+
+function frame(Asc,B,t){
+  const Aa=Asc?Asc.atoms:{}, Ba=B.atoms; const ids=new Set([...Object.keys(Aa),...Object.keys(Ba)]); const P={},BX={};
+  let labels='',deco='';
+  ids.forEach(id=>{const a=Aa[id],b=Ba[id];
+    const x=a&&b?a.x+(b.x-a.x)*t:(b||a).x, y=a&&b?a.y+(b.y-a.y)*t:(b||a).y; P[id]=[x,y];
+    BX[id]=box(t<.5?(a||b):(b||a));
+    if(a&&b&&akey(a)===akey(b)){labels+=labelSVG(b,x,y,vis(b));deco+=decoSVG(b,x,y,vis(b))}
+    else{ if(a){labels+=labelSVG(a,x,y,vis(a)*(1-t));deco+=decoSVG(a,x,y,vis(a)*(1-t))}
+          if(b){labels+=labelSVG(b,x,y,vis(b)*t);deco+=decoSVG(b,x,y,vis(b)*t)} }
+  });
+  const bA=new Map((Asc?Asc.bonds:[]).map(b=>[bkey(b),b])), bB=new Map(B.bonds.map(b=>[bkey(b),b]));
+  let bonds=''; const draw=(bd,op)=>{const p1=P[bd[0]],p2=P[bd[1]];bonds+=bondSVG(trim(p1,p2,BX[bd[0]]),trim(p2,p1,BX[bd[1]]),bd,op)};
+  bB.forEach((bd,k)=>draw(bd,bA.has(k)?1:t)); bA.forEach((bd,k)=>{if(!bB.has(k)) draw(bd,1-t)});
+  let extra='';
+  const sA=Asc&&Asc.surf, sB=B.surf; if(sA||sB) extra+=surfSVG(sA&&sB?1:(sB?t:1-t));
+  const tA=new Map(((Asc&&Asc.texts)||[]).map(x=>[tkey(x),x])), tB=new Map((B.texts||[]).map(x=>[tkey(x),x]));
+  tB.forEach((x,k)=>extra+=textSVG(x,tA.has(k)?1:t)); tA.forEach((x,k)=>{if(!tB.has(k)) extra+=textSVG(x,1-t)});
+  const rA=new Map(((Asc&&Asc.rxn)||[]).map(x=>[tkey(x),x])), rB=new Map((B.rxn||[]).map(x=>[tkey(x),x]));
+  rB.forEach((x,k)=>extra+=rxnSVG(x,rA.has(k)?1:t)); rA.forEach((x,k)=>{if(!rB.has(k)) extra+=rxnSVG(x,1-t)});
+  return extra+bonds+labels+deco;
+}
+
+let arrowToken=0;
+function drawArrows(B){
+  const tok=++arrowToken; arrowsG.innerHTML='';
+  (B.arrows||[]).forEach((a,i)=>{
+    const [fx,fy]=a.f,[tx,ty]=a.t,dx=tx-fx,dy=ty-fy,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L,bend=a.b||0;
+    const cx=(fx+tx)/2+nx*bend, cy=(fy+ty)/2+ny*bend;
+    let ux=tx-cx,uy=ty-cy; const ul=Math.hypot(ux,uy)||1; ux/=ul;uy/=ul; const px=-uy,py=ux;
+    const mv=a.k==='mv', bx=tx-ux*12, by=ty-uy*12;
+    const path=document.createElementNS(NS,'path');
+    path.setAttribute('d',`M${fx} ${fy} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${bx.toFixed(1)} ${by.toFixed(1)}`);
+    path.setAttribute('class',mv?'mv':'arr');
+    const head=document.createElementNS(NS,'polygon'); const sg=bend>=0?1:-1;
+    const pts=a.h?`${tx},${ty} ${bx+px*7*sg},${by+py*7*sg} ${bx},${by}`:`${tx},${ty} ${bx+px*5.5},${by+py*5.5} ${bx-px*5.5},${by-py*5.5}`;
+    head.setAttribute('points',pts); head.setAttribute('class',mv?'mvh':'arrh');
+    head.style.opacity=0; path.style.opacity=0;
+    arrowsG.append(path,head);
+    const delay=reduce?0:250+i*450;
+    setTimeout(()=>{ if(tok!==arrowToken) return;
+      if(reduce){path.style.opacity=1;head.style.opacity=1;return}
+      if(mv){path.style.transition='opacity .5s';head.style.transition='opacity .5s';path.style.opacity=1;head.style.opacity=1;return}
+      const len=path.getTotalLength(); path.style.strokeDasharray=len; path.style.strokeDashoffset=len; path.style.opacity=1;
+      path.getBoundingClientRect(); path.style.transition='stroke-dashoffset .8s ease-in-out'; path.style.strokeDashoffset=0;
+      setTimeout(()=>{if(tok===arrowToken){head.style.transition='opacity .2s';head.style.opacity=1}},720);
+    },delay);
+  });
+}
+
+let raf=null;
+function transition(Asc,B){
+  cancelAnimationFrame(raf); arrowToken++; arrowsG.innerHTML='';
+  const dur=reduce?0:(Asc?850:450), t0=performance.now();
+  const step=now=>{const t=dur?Math.min(1,(now-t0)/dur):1; const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    scene.innerHTML=frame(Asc,B,e); if(t<1) raf=requestAnimationFrame(step); else drawArrows(B)};
+  raf=requestAnimationFrame(step);
+}
+
+
+/* ====================== DIAGRAMA DE ENERGIA ====================== */
+const en=document.getElementById('energy'); let enProf=null, enPath=null, enPts=[], enX=null, enRaf=null;
+function buildEnergy(key){
+  const P=PROF[key]; enProf=key;
+  let s=`<line x1="22" y1="178" x2="22" y2="14" class="ax"/><polygon points="22,8 17,18 27,18" class="axh"/>
+  <text x="14" y="96" class="t-note" text-anchor="middle" transform="rotate(-90 14 96)">energia</text>
+  <line x1="22" y1="178" x2="580" y2="178" class="ax"/>`;
+  if(P.ea){const [x,y1,y2]=P.ea; s+=`<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2+4}" class="ea"/><polygon points="${x},${y2} ${x-5},${y2+10} ${x+5},${y2+10}" class="eah"/><line x1="40" y1="${y1}" x2="${x+10}" y2="${y1}" class="ea" stroke-dasharray="3 4"/><text x="${x-8}" y="${(y1+y2)/2+10}" text-anchor="end" class="t-ea">Eₐ</text>`}
+  s+=`<path id="enCurve" d="${P.d}" class="curve"/>`;
+  P.labels.forEach(([x,y,t])=>s+=`<text x="${x}" y="${y}" text-anchor="middle" class="t-elab">${t}</text>`);
+  s+=`<circle id="enDot" r="8" class="edot"/>`;
+  en.innerHTML=s; enPath=document.getElementById('enCurve');
+  const L=enPath.getTotalLength(); enPts=[]; for(let i=0;i<=300;i++){const p=enPath.getPointAtLength(L*i/300);enPts.push([p.x,p.y])}
+  enX=null;
+}
+const idxX=x=>{let bi=0,bd=1e9;enPts.forEach((p,i)=>{const d=Math.abs(p[0]-x);if(d<bd){bd=d;bi=i}});return bi};
+function moveEnergy(key,x){
+  if(enProf!==key) buildEnergy(key);
+  const dot=document.getElementById('enDot'); cancelAnimationFrame(enRaf);
+  const i1=idxX(x), i0=enX===null?i1:idxX(enX); enX=x;
+  const dur=reduce||i0===i1?0:800, t0=performance.now();
+  const f=now=>{const t=dur?Math.min(1,(now-t0)/dur):1,e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; const p=enPts[Math.round(i0+(i1-i0)*e)];
+    dot.setAttribute('cx',p[0]);dot.setAttribute('cy',p[1]); if(t<1) enRaf=requestAnimationFrame(f)};
+  enRaf=requestAnimationFrame(f);
+}
+
+/* ====================== INTERFACE ====================== */
+const $=id=>document.getElementById(id);
+let M=0,S=0,autoTimer=null;
+const tabs=$('tabs');
+MECH.forEach((m,i)=>{const b=document.createElement('button');b.className='tab';b.role='tab';b.innerHTML=`<small>${i+1}</small>${m.tab}`;b.onclick=()=>{stopAuto();select(i,0)};tabs.append(b)});
+
+function render(fromScene){
+  const m=MECH[M], st=m.steps[S];
+  [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===M));
+  $('mTitle').textContent=`${M+1}. ${m.title}`; $('mSub').textContent=m.sub;
+  $('stepNum').textContent=`Etapa ${S+1} de ${m.steps.length}`; $('stepTitle').textContent=st.t; $('stepText').textContent=st.d;
+  $('prev').disabled=S===0; $('next').textContent=S===m.steps.length-1?(M<MECH.length-1?'Próximo mecanismo ▶':'Recomeçar'):'Próxima ▶';
+  const dots=$('dots'); dots.innerHTML='';
+  m.steps.forEach((_,i)=>{const d=document.createElement('button');d.className='dot';d.setAttribute('aria-label','Etapa '+(i+1));if(i===S)d.setAttribute('aria-current','step');d.onclick=()=>{stopAuto();go(i)};dots.append(d)});
+  $('facts').innerHTML=Object.entries(m.facts).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  $('enTitle').textContent='Diagrama de energia: adição e eliminação, com intermediário tetraédrico';
+  transition(fromScene,st.s); moveEnergy(m.prof,st.ep);
+}
+function select(mi,si){M=mi;S=si;history.replaceState(null,'','#'+MECH[M].id);enX=null;render(null);
+  tabs.children[M].scrollIntoView({block:'nearest',inline:'center',behavior:reduce?'auto':'smooth'})}
+function go(si){const from=MECH[M].steps[S].s;S=si;render(from)}
+function next(){const m=MECH[M]; if(S<m.steps.length-1) go(S+1); else if(M<MECH.length-1) select(M+1,0); else select(0,0)}
+$('prev').onclick=()=>{stopAuto();if(S>0)go(S-1)};
+$('next').onclick=()=>{stopAuto();next()};
+$('replay').onclick=()=>drawArrows(MECH[M].steps[S].s);
+function stopAuto(){clearTimeout(autoTimer);autoTimer=null;$('auto').textContent='Reproduzir tudo'}
+$('auto').onclick=()=>{
+  if(autoTimer){stopAuto();return}
+  $('auto').textContent='Pausar';
+  if(S===MECH[M].steps.length-1) go(0);
+  const tick=()=>{const m=MECH[M]; const na=(m.steps[S].s.arrows||[]).length;
+    autoTimer=setTimeout(()=>{ if(S<m.steps.length-1){go(S+1);tick()} else stopAuto() },3000+na*500)};
+  tick();
+};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){stopAuto();next()} if(e.key==='ArrowLeft'&&S>0){stopAuto();go(S-1)}});
+const toTop=i=>{stopAuto();select(i,0);window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})};
+
+/* resumo */
+const cols=['Nucleófilo','Grupo de saída','Catálise','Intermediário','Reversível'];
+$('summary').innerHTML=`<tr><th></th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>`+
+  MECH.map((m,i)=>`<tr><td><a href="#${m.id}" data-m="${i}">${m.tab}</a></td>${cols.map(c=>`<td>${m.facts[c]}</td>`).join('')}</tr>`).join('');
+$('summary').addEventListener('click',e=>{const a=e.target.closest('a[data-m]');if(!a)return;e.preventDefault();toTop(+a.dataset.m)});
+
+/* escada de reatividade */
+$('ladder').innerHTML=DER.map((d,i)=>`<div class="rung" style="--w:${[100,85,70,70,55][i]}%"><span class="rb"></span><span class="rn"><b>${d.n}</b> <span class="rf">${d.f}</span></span><span class="rl">sai ${d.lg} · pKa ${d.pka}</span></div>`).join('');
+const conv={from:null,to:null};
+const mk=(id,k)=>$(id).innerHTML=DER.map(d=>`<button class="opt" data-c="${k}" data-v="${d.k}" aria-pressed="false">${d.n}</button>`).join('');
+mk('cFrom','from'); mk('cTo','to');
+document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.c; conv[k]=b.dataset.v;
+  document.querySelectorAll(`[data-c="${k}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));
+  const out=$('flowOut'); if(!conv.from||!conv.to) return; out.hidden=false;
+  if(conv.from===conv.to){out.className='';out.innerHTML='<p>Escolha dois derivados diferentes.</p>';return}
+  const [ok,t,mi]=CONV[conv.from+'-'+conv.to]; out.className=ok?'ok':'no';
+  out.innerHTML=`<p class="fres">${ok?'Possível':'Não diretamente'}</p><p>${t}</p>${mi!==null?`<a href="#${MECH[mi].id}" data-m="${mi}">Ver o mecanismo passo a passo</a>`:''}`;
+});
+$('flowOut').addEventListener('click',e=>{const a=e.target.closest('a[data-m]');if(!a)return;e.preventDefault();toTop(+a.dataset.m)});
+$('flowReset').onclick=()=>{conv.from=conv.to=null;document.querySelectorAll('[data-c]').forEach(x=>x.setAttribute('aria-pressed','false'));$('flowOut').hidden=true};
+
+/* desafios */
+$('quiz').innerHTML=QUIZ.map((q,i)=>`<div class="q" data-i="${i}"><p class="stem">${i+1}. ${q.q}</p><div class="opts">${q.o.map((o,j)=>`<button class="opt" data-j="${j}">${o}</button>`).join('')}</div><p class="fb" hidden></p></div>`).join('');
+$('quiz').addEventListener('click',e=>{
+  const link=e.target.closest('a[data-m]'); if(link){e.preventDefault();toTop(+link.dataset.m);return}
+  const b=e.target.closest('.opt'); if(!b) return; const box=b.closest('.q'),q=QUIZ[+box.dataset.i],j=+b.dataset.j,fb=box.querySelector('.fb');
+  box.querySelectorAll('.opt').forEach(o=>o.classList.remove('right','wrong'));
+  const ok=j===q.a; b.classList.add(ok?'right':'wrong'); if(!ok) box.querySelectorAll('.opt')[q.a].classList.add('right');
+  fb.hidden=false; fb.className='fb '+(ok?'right':'wrong');
+  fb.innerHTML=(ok?'Correto. ':'Ainda não. ')+q.e+` <a href="#${MECH[q.m].id}" data-m="${q.m}">Rever ${MECH[q.m].tab}</a>`;
+});
+
+const start=Math.max(0,MECH.findIndex(m=>'#'+m.id===location.hash));
+select(start,0);
+window.addEventListener('hashchange',()=>{const i=MECH.findIndex(m=>'#'+m.id===location.hash);if(i>=0&&i!==M){stopAuto();select(i,0)}});
+
+</script>
+</body>
+</html>
