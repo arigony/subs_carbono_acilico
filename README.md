@@ -20,20 +20,7 @@ Também inclui:
 Para abrir direto num mecanismo, acrescente o código ao endereço, por exemplo:
 `https://SEU-USUARIO.github.io/substituicao_acilica/#fischer`
 
-## Como publicar no GitHub Pages
-
-1. Crie um repositório público chamado `substituicao_acilica`.
-2. Envie `index.html`, `README.md` e `.nojekyll` para a raiz.
-3. Em **Settings → Pages**, escolha **Deploy from a branch**, branch `main`, pasta `/ (root)`, e clique em **Save**.
-4. Em um ou dois minutos a página estará em `https://SEU-USUARIO.github.io/substituicao_acilica/`.
-
-## Uso
-
-- **Próxima / Anterior** ou as setas ← → do teclado avançam as etapas.
-- **Repetir setas** anima de novo o movimento dos elétrons.
-- **Reproduzir tudo** percorre o mecanismo inteiro automaticamente.
-
-Arquivo HTML único, sem instalação. Funciona em computador e celular, com tema claro e escuro.
+#
 
 Veja também:
 - [Adição à ligação dupla C=C](https://arigony.github.io/adicao_mecanismo/)
